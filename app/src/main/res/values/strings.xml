@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">FTP</string>
+    <string name="ftp_connection_name_hint">Connection Name</string>
+    <string name="connection_name_label">Connection Name</string>
+    <string name="ftp_server_ip_hint">IP</string>
+    <string name="ftp_server_port_hint">Port</string>
+    <string name="ftp_server_username_hint">Username</string>
+    <string name="ftp_server_password_hint">Password</string>
+    <string name="ftp_server_destination_hint">Destination folder path</string>
+    <string name="server_info">Server Info</string>
+    <string name="source_list">Source Files and Directories</string>
+    <string name="ftp_edit_done">Done</string>
+    <string name="ftp_edit_cancel">Cancel</string>
+    <string name="new_ftp">New FTP</string>
+    <string name="delete_ftp">Delete FTP</string>
+    <string name="plus">+</string>
+    <string name="save">Save</string>
+    <string name="run">Run</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="search">Search</string>
+    <string name="clear_search">Clear Search</string>
+    <string name="no_ftp">There are no FTP connectionss</string>
+    <string name="call_text">Call</string>
+    <plurals name="subtitle_plural">
+        <item quantity="one">%1$s FTP</item>
+        <item quantity="other">%1$s FTPs</item>
+    </plurals>
+</resources>

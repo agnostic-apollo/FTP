@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:padding="16dp">
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      xmlns:tools="http://schemas.android.com/tools"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:layout_gravity="center"
+                      >
+            <ImageView android:id="@+id/list_item_ftp_photo"
+                       android:layout_width="60dp"
+                       android:layout_height="60dp"
+                       android:padding="4dp"
+                       android:scaleType="centerInside"
+                       android:src="@drawable/ic_computer"
+                       android:cropToPadding="true"/>
+
+            <TextView
+                android:id="@+id/list_item_ftp_connection_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:gravity="start|center_vertical"
+                android:padding="4dp"
+                tools:text="Connection Name"/>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+</LinearLayout>
