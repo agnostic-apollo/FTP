@@ -33,12 +33,8 @@ public class FTPViewFragment extends Fragment {
 	private TextView mSources;
     List<String> sources;
 
-    int imageViewWidth=0;
-    int imageViewHeight=0;
-
 
     private static final String ARG_FTP_ID = "ftp_id";
-    private static final String DIALOG_CONTACT_IMAGE = "DialogContactImage";
 
 
     @Override

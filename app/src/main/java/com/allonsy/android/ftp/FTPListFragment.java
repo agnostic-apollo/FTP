@@ -1,16 +1,22 @@
 package com.allonsy.android.ftp;
 
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +29,8 @@ import android.widget.Toast;
 import java.util.List;
 import java.util.UUID;
 
+import static android.content.ContentValues.TAG;
+
 public class FTPListFragment extends Fragment {
 
     private RecyclerView mFTPRecyclerView;
@@ -33,11 +41,20 @@ public class FTPListFragment extends Fragment {
     private static final int ADD_FTP = 0;
 	private static final String EXTRA_FTP_ID = "ftpId";
 	private static final String EXTRA_RETURN_STATE = "ftpState";
+    private MyListener callback;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            checkPermissions();
+    }
+
+    @Override
+    public void onAttach(Context  context) {
+        super.onAttach(context);
+        callback= (MyListener) context;
     }
 
     @Override
@@ -270,122 +287,52 @@ public class FTPListFragment extends Fragment {
         updateUI();
     }
 
+    public void checkPermissions() {
+        int result;
+        String[] permissions = new String[]{
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
 
-    /*private class ExportDatabaseCSVTask extends AsyncTask<String ,String, String> {
-        //private final ProgressDialog dialog = new ProgressDialog(getActivity());
-        @Override
-        protected void onPreExecute() {
-            //this.dialog.setMessage("Exporting database...");
-            //this.dialog.show();
-        }
+        };
 
-        protected String doInBackground(final String... args){
-            File exportDir = new File(Environment.getExternalStorageDirectory(), "");
-            if (!exportDir.exists()) {
-                exportDir.mkdirs();
-            }
-
-            Date date = new Date() ;
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss") ;
-
-            File file = new File(exportDir, dateFormat.format(date) + ".csv");
-            try {
-
-                file.createNewFile();
-                CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
-
-                //data
-                FTPLab ftpLab = FTPLab.get(getActivity());
-                List<FTP> FTPs;
-                List<String> phones;
-                List<String> emails;
-                FTPs = ftpLab.getContacts();
-                int max_phones=0;
-                int max_emails=0;
-
-                //get max number of phone and emails in database
-                for (int i = 0; i != FTPs.size(); i++) {
-                    phones = FTPs.get(i).getSources();
-                    if(phones.size()>max_phones)
-                        max_phones=phones.size();
-                    emails = FTPs.get(i).getEmails();
-                    if(emails.size()>max_emails)
-                        max_emails=emails.size();
-                }
-
-                //write headers
-                ArrayList<String> header= new ArrayList<String>();
-                header.add("Name");
-                for (int j = 0; j != max_phones; j++) {
-                    header.add("Phone "+ String.valueOf(j+1));
-                }
-                for (int j = 0; j != max_emails; j++) {
-                    header.add("Email "+ String.valueOf(j+1));
-                }
-
-                String[] arr1 = header.toArray(new String[header.size()]);
-                csvWrite.writeNext(arr1);
-
-                //write data
-                for (int i = 0; i != FTPs.size(); i++) {
-
-                    ArrayList<String> data= new ArrayList<String>();
-                    data.add(FTPs.get(i).getName());
-
-
-                    phones = FTPs.get(i).getSources();
-                    int j;
-                    for (j = 0; j != phones.size(); j++) {
-                        data.add(phones.get(j));
-                    }
-                    for (; j< max_phones; j++) {
-                        data.add("");
-                    }
-
-                    emails = FTPs.get(i).getEmails();
-                    for (j = 0; j != emails.size(); j++) {
-                        data.add(emails.get(j));
-                    }
-                    for (; j< max_emails; j++) {
-                        data.add("");
-                    }
-
-                    String[] arr = data.toArray(new String[data.size()]);
-                    csvWrite.writeNext(arr);
-
-                }
-                csvWrite.close();
-
-                if(FTPs.size()==0)
-                    return "0";
-
-                return "1";
-            }
-            catch (IOException e){
-                Log.e("allonsy.contacts", e.getMessage(), e);
-                return "2";
-            }
-        }
-
-        @SuppressLint("NewApi")
-        @Override
-        protected void onPostExecute(final String success) {
-
-           // if (this.dialog.isShowing()){
-                //this.dialog.dismiss();
-            //}
-            if (success!=null && success.equals("0")){
-                Toast.makeText(getActivity(), "No Contacts Saved", Toast.LENGTH_SHORT).show();
-            }
-            else if (success!=null && success.equals("1")){
-                Toast.makeText(getActivity(), "Export successful!", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                Toast.makeText(getActivity(), "Export failed!", Toast.LENGTH_SHORT).show();
+        for (String p:permissions) {
+            result = ContextCompat.checkSelfPermission(getActivity(),p);
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{p}, 0);
             }
         }
     }
-    */
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 0: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! continue
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(getActivity(), "Permissions Missing, Exiting", Toast.LENGTH_SHORT).show();
+                    try {Thread.sleep(1000);} catch (Exception e) {Log.e(TAG, e.getMessage());}
+                    callback.finishActivity();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
+    public interface MyListener {
+        public void finishActivity();
+    }
 
 }
 
