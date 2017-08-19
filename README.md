@@ -12,6 +12,7 @@ Destination path can also be added which would be relative to ftp servers home p
 Both source and destination paths are in [UNIX path format](https://en.wikipedia.org/wiki/Path_(computing)#Unix_style)  
 
 [Screenshots](https://github.com/agnostic-apollo/FTP/tree/master/screenshots)  
+[Download APK](https://github.com/agnostic-apollo/FTP/releases)  
 
 Credits  
  [Apache Commons Net 3.6 FTPClient API](https://commons.apache.org/proper/commons-net/apidocs/org/apache/commons/net/ftp/FTPClient.html).  
