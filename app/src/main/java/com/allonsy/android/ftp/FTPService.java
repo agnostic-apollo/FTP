@@ -1,15 +1,18 @@
 package com.allonsy.android.ftp;
 
 
+import android.Manifest;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -74,6 +77,18 @@ public class FTPService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         acquireWakelocks();
+        handler = new Handler(getMainLooper());
+
+        if(!checkPermissions()) {
+            showToast("Storage Permissions Missing, Stopping Transfer");
+            try {Thread.sleep(1000);} catch (Exception e) {Log.e(TAG, e.getMessage());}
+            Intent activityIntent = new Intent(this, FTPListActivity.class);
+            activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(activityIntent);
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+
         UUID ftpId = (UUID) intent.getSerializableExtra(EXTRA_FTP_ID);
 
         mFTP = FTPLab.get(this).getFTP(ftpId);
@@ -108,14 +123,12 @@ public class FTPService extends Service {
 
     private void startFTP()
     {
-        mBuilder.setContentTitle("FTP Transfer")
-                .setContentText("Transfer in progress")
-                .setSmallIcon(R.drawable.ic_launcher);
+
 
         new Thread(new Runnable() {
             public void run() {
                     try {
-                        handler = new Handler(getMainLooper());
+                        showToast("Connecting");
                         ftpClient.connect(serverIP, Integer.valueOf(serverPort));
                         ftpClient.login(serverUsername, serverPassword);
                         ftpClient.enterLocalPassiveMode();
@@ -158,8 +171,13 @@ public class FTPService extends Service {
                          }
 
                         // Displays the progress bar for the first time.
-                        mBuilder.setProgress(100, 0, false);
+                        showToast("Transfer Started");
+                        mBuilder.setContentTitle("FTP Transfer")
+                                .setContentText("Transfer in progress")
+                                .setSmallIcon(R.drawable.ic_launcher)
+                                .setProgress(100, 0, false);
                         mNotifyManager.notify(notificationId, mBuilder.build());
+
                         Log.v(TAG,String.valueOf(totalTransferSize));
                         String remoteFile;
 
@@ -431,6 +449,17 @@ public class FTPService extends Service {
             });
         }
     }
+
+    public boolean checkPermissions() {
+        int result = ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (result != PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }
+        else
+            return true;
+    }
+
 
 }
 

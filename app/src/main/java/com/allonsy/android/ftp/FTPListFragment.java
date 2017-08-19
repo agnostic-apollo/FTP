@@ -318,9 +318,9 @@ public class FTPListFragment extends Fragment {
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(getActivity(), "Permissions Missing, Exiting", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Permission Not Granted", Toast.LENGTH_SHORT).show();
                     try {Thread.sleep(1000);} catch (Exception e) {Log.e(TAG, e.getMessage());}
-                    callback.finishActivity();
+                    //callback.finishActivity();
                 }
                 return;
             }

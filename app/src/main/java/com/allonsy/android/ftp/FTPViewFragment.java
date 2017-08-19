@@ -97,7 +97,6 @@ public class FTPViewFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.menu_item_ftp_run:
                 if (!isMyServiceRunning(FTPService.class)) {
-                    Toast.makeText(getActivity(), "Transfer Started", Toast.LENGTH_SHORT).show();
                     Intent intent1 = FTPService.newIntent(getActivity(), mFTP.getId());
                     getContext().startService(intent1);
                 } else
