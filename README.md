@@ -4,7 +4,7 @@ A simple FTP file transfer app from android to an ftp server
 The android app uses [Apache Commons Net 3.6 FTPClient API](https://commons.apache.org/proper/commons-net/apidocs/org/apache/commons/net/ftp/FTPClient.html).  
 On the server side [FileZilla Windows Server](https://filezilla-project.org/) was used, other servers should work too but not tested.  
   
-Features: 
+Features:   
 Multiple Connections can be added (but only 1 transfer will run at a time)  
 Supports both IP and DDNS  
 Source Path of files and folders have to be added manually(might add file viewer and selector in future)  
