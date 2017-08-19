@@ -15,4 +15,4 @@ Both source and destination paths are in [UNIX path format](https://en.wikipedia
 
 Credits
  [Apache Commons Net 3.6 FTPClient API](https://commons.apache.org/proper/commons-net/apidocs/org/apache/commons/net/ftp/FTPClient.html).  
-![Icon](https://github.com/agnostic-apollo/FTP/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png) [Source](http://www.egermeier.com/wp-content/uploads/2014/06/git-ftp-icon-150x150.png)   
+![Icon](https://github.com/agnostic-apollo/FTP/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png | width=100) [Source](http://www.egermeier.com/wp-content/uploads/2014/06/git-ftp-icon-150x150.png)   
