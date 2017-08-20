@@ -43,12 +43,18 @@ public class FTPListFragment extends Fragment {
 	private static final String EXTRA_RETURN_STATE = "ftpState";
     private MyListener callback;
 
+    public static String[] permissions = new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            checkPermissions();
+            if(!checkPermissions(getActivity()))
+                askPermissions();
     }
 
     @Override
@@ -289,12 +295,22 @@ public class FTPListFragment extends Fragment {
         updateUI();
     }
 
-    public void checkPermissions() {
+    public static boolean checkPermissions(Context context) {
         int result;
-        String[] permissions = new String[]{
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
 
-        };
+        for (String p:permissions) {
+            result = ContextCompat.checkSelfPermission(context,p);
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void askPermissions() {
+        int result;
+        Toast.makeText(getActivity(), "Please grant permissions on next screen", Toast.LENGTH_SHORT).show();
+        try {Thread.sleep(1000);} catch (Exception e) {Log.e(TAG, e.getMessage());}
 
         for (String p:permissions) {
             result = ContextCompat.checkSelfPermission(getActivity(),p);
@@ -320,7 +336,7 @@ public class FTPListFragment extends Fragment {
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(getActivity(), "Permission Not Granted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Permissions Not Granted", Toast.LENGTH_SHORT).show();
                     try {Thread.sleep(1000);} catch (Exception e) {Log.e(TAG, e.getMessage());}
                     //callback.finishActivity();
                 }

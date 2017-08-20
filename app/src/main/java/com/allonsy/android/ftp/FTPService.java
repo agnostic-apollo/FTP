@@ -79,7 +79,7 @@ public class FTPService extends Service {
         acquireWakelocks();
         handler = new Handler(getMainLooper());
 
-        if(!checkPermissions()) {
+        if(!FTPListFragment.checkPermissions(this)) {
             showToast("Storage Permissions Missing, Stopping Transfer");
             try {Thread.sleep(1000);} catch (Exception e) {Log.e(TAG, e.getMessage());}
             Intent activityIntent = new Intent(this, FTPListActivity.class);
@@ -128,6 +128,11 @@ public class FTPService extends Service {
         new Thread(new Runnable() {
             public void run() {
                     try {
+                        mBuilder.setContentTitle("FTP Transfer")
+                                .setContentText("Transfer in progress")
+                                .setSmallIcon(R.drawable.ic_launcher)
+                                .setProgress(100, 0, false);
+
                         showToast("Connecting");
                         ftpClient.connect(serverIP, Integer.valueOf(serverPort));
                         ftpClient.login(serverUsername, serverPassword);
@@ -172,10 +177,6 @@ public class FTPService extends Service {
 
                         // Displays the progress bar for the first time.
                         showToast("Transfer Started");
-                        mBuilder.setContentTitle("FTP Transfer")
-                                .setContentText("Transfer in progress")
-                                .setSmallIcon(R.drawable.ic_launcher)
-                                .setProgress(100, 0, false);
                         mNotifyManager.notify(notificationId, mBuilder.build());
 
                         Log.v(TAG,String.valueOf(totalTransferSize));
@@ -448,16 +449,6 @@ public class FTPService extends Service {
                 }
             });
         }
-    }
-
-    public boolean checkPermissions() {
-        int result = ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (result != PackageManager.PERMISSION_GRANTED) {
-            return false;
-        }
-        else
-            return true;
     }
 
 
