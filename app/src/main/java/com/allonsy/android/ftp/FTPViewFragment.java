@@ -4,9 +4,11 @@ package com.allonsy.android.ftp;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -91,8 +93,7 @@ public class FTPViewFragment extends Fragment {
                 startActivityForResult(intent2,FTPEditFragment.UPDATE_FTP);
                 return true;
             case R.id.menu_item_ftp_delete:
-                FTPLab.get(getActivity()).deleteFTP(mFTP);
-                getActivity().finish();
+                showConfirmDeleteDialogue();
                 return true;
 
             default:
@@ -170,6 +171,30 @@ public class FTPViewFragment extends Fragment {
             }
         }
         return false;
+    }
+
+    private void showConfirmDeleteDialogue() {
+
+        new AlertDialog.Builder(getActivity())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Delete")
+                .setMessage("Are you sure?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        FTPLab.get(getActivity()).deleteFTP(mFTP);
+                        getActivity().finish();
+                    }
+
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+
+                })
+                .show();
     }
 
 }

@@ -3,12 +3,13 @@ package com.allonsy.android.ftp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,14 +19,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class FTPEditFragment extends Fragment {
 
@@ -102,7 +101,7 @@ public class FTPEditFragment extends Fragment {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
 
                 if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK){
-                    save();
+                    validate();
                     return true;
                 }
                 return false;
@@ -289,7 +288,7 @@ public class FTPEditFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_save:
-                save();
+                validate();
                 return true;
             case R.id.menu_item_cancel:
                 cancel();
@@ -299,7 +298,7 @@ public class FTPEditFragment extends Fragment {
         }
     }
 
-    private void save() {
+    private void validate() {
         boolean valid=true;
         boolean validBefore=true;
 
@@ -456,32 +455,33 @@ public class FTPEditFragment extends Fragment {
                 //mSourcesEditTexts.get(errorIndex).requestFocus();
         }
 
-
         if(valid) {
-
-            mFTP.setConnectionName(connectionName);
-            mFTP.setServerIP(serverIP);
-            mFTP.setServerPort(serverPort);
-            mFTP.setServerUsername(serverUsername);
-            mFTP.setDestination(destination);
-
-            List<String> newSources = new ArrayList<>();
-            for (int i = 0; i != sources.size(); i++) {
-                if(!sources.get(i).isEmpty())
-                    newSources.add(sources.get(i));
-            }
-            mFTP.setSources(newSources);
-
-            Intent resultIntent1 = new Intent();
-            resultIntent1.putExtra(RETURN_STATE, "1");
-            resultIntent1.putExtra(FTP_OBJECT, mFTP);
-            resultIntent1.putExtra(FTP_PASSWORD, serverPassword);
-            getActivity().setResult(Activity.RESULT_OK, resultIntent1);
-            getActivity().finish();
+            showConfirmSaveDialogue();
         }
 
     }
 
+    private void save() {
+        mFTP.setConnectionName(connectionName);
+        mFTP.setServerIP(serverIP);
+        mFTP.setServerPort(serverPort);
+        mFTP.setServerUsername(serverUsername);
+        mFTP.setDestination(destination);
+
+        List<String> newSources = new ArrayList<>();
+        for (int i = 0; i != sources.size(); i++) {
+            if(!sources.get(i).isEmpty())
+                newSources.add(sources.get(i));
+        }
+        mFTP.setSources(newSources);
+
+        Intent resultIntent1 = new Intent();
+        resultIntent1.putExtra(RETURN_STATE, "1");
+        resultIntent1.putExtra(FTP_OBJECT, mFTP);
+        resultIntent1.putExtra(FTP_PASSWORD, serverPassword);
+        getActivity().setResult(Activity.RESULT_OK, resultIntent1);
+        getActivity().finish();
+    }
 
     private void cancel() {
         Intent resultIntent2 = new Intent();
@@ -510,7 +510,7 @@ public class FTPEditFragment extends Fragment {
                 if (event.getAction()==KeyEvent.ACTION_UP && event.getKeyCode() == KeyEvent.KEYCODE_BACK )
                 {
                     extendedEditText.clearFocus();
-                    save();
+                    validate();
                     View view = getActivity().getCurrentFocus();
                     if (view != null) {
                         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -629,5 +629,28 @@ public class FTPEditFragment extends Fragment {
 
         savedInstanceState.putSerializable(ARG_FTP, mFTP);
         savedInstanceState.putSerializable(ARG_FTP_PASSWORD, serverPassword);
+    }
+
+    private void showConfirmSaveDialogue() {
+
+        new AlertDialog.Builder(getActivity())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Save")
+                .setMessage("Are you sure?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        save();
+                    }
+
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        cancel();
+                    }
+
+                })
+                .show();
     }
 }
