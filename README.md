@@ -10,12 +10,12 @@ Supports both IP and hostname
 Source Path of files and folders have to be added manually(might add file viewer and selector in future)  
 Destination path can also be added which would be relative to ftp servers home path  
 
-Valid Inputs:
+Valid Inputs:  
 Connection Name matches any kind of letter from any language.  
 Server IP, hostname and port are standard formats.  
 Server Username can contain only ASCII letters and digits, with hyphens, underscores and spaces as internal separators. The first and last character are not separators, and that there's never more than one separator in a row.  
-Password can only contain 50 ASCII characters.
-Source and destination paths should be in [UNIX path format](https://en.wikipedia.org/wiki/Path_(computing)#Unix_style)  
+Password can only contain 50 ASCII characters.  
+Source and destination paths should be in [UNIX path format](https://en.wikipedia.org/wiki/Path_(computing)#Unix_style)   
 
 [Screenshots](https://github.com/agnostic-apollo/FTP/tree/master/screenshots)  
 [Download APK](https://github.com/agnostic-apollo/FTP/releases)  
