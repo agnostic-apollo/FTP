@@ -2,11 +2,13 @@ package com.allonsy.android.ftp;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -27,12 +30,12 @@ import java.util.UUID;
 public class FTPEditFragment extends Fragment {
 
     private FTP mFTP;
-	private EditText mConnectionName;
-	private EditText mServerIP;
-	private EditText mServerPort;
-	private EditText mServerUsername;
-	private EditText mServerPassword;
-	private EditText mDestination;
+	private ExtendedEditText mConnectionName;
+	private ExtendedEditText mServerIP;
+	private ExtendedEditText mServerPort;
+	private ExtendedEditText mServerUsername;
+	private ExtendedEditText mServerPassword;
+	private ExtendedEditText mDestination;
 
 
     private String connectionName;
@@ -42,7 +45,7 @@ public class FTPEditFragment extends Fragment {
     private String serverPassword;
     private String destination;
 
-    private List<EditText> mSourcesEditTexts;
+    private List<ExtendedEditText> mSourcesEditTexts;
     private List<ImageView> mSourcesDeleteButtons;
     private List<LinearLayout> mSourcesLinearLayouts;
     private List<String> sources;
@@ -111,29 +114,34 @@ public class FTPEditFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_ftp_edit, container, false);
 
-        mConnectionName = (EditText) v.findViewById(R.id.edit_ftp_connection_name);
+        mConnectionName = (ExtendedEditText) v.findViewById(R.id.edit_ftp_connection_name);
         connectionName = mFTP.getConnectionName();
         mConnectionName.setText(connectionName);
+        setEditTextKeyImeChangeListener(mConnectionName);
 		
-		mServerIP = (EditText) v.findViewById(R.id.edit_ftp_server_ip);
+		mServerIP = (ExtendedEditText) v.findViewById(R.id.edit_ftp_server_ip);
         serverIP = mFTP.getServerIP();
         mServerIP.setText(serverIP);
-		
-		mServerPort = (EditText) v.findViewById(R.id.edit_ftp_server_port);
+        setEditTextKeyImeChangeListener(mServerIP);
+
+		mServerPort = (ExtendedEditText) v.findViewById(R.id.edit_ftp_server_port);
         serverPort = mFTP.getServerPort();
         mServerPort.setText(serverPort);
-		
-		mServerUsername = (EditText) v.findViewById(R.id.edit_ftp_server_username);
+        setEditTextKeyImeChangeListener(mServerPort);
+
+		mServerUsername = (ExtendedEditText) v.findViewById(R.id.edit_ftp_server_username);
         serverUsername = mFTP.getServerUsername();
         mServerUsername.setText(serverUsername);
+        setEditTextKeyImeChangeListener(mServerUsername);
 
-        mServerPassword = (EditText) v.findViewById(R.id.edit_ftp_server_password);
+        mServerPassword = (ExtendedEditText) v.findViewById(R.id.edit_ftp_server_password);
         mServerPassword.setText(serverPassword);
-		
-		mDestination = (EditText) v.findViewById(R.id.edit_ftp_server_destination);
+        setEditTextKeyImeChangeListener(mServerPassword);
+
+		mDestination = (ExtendedEditText) v.findViewById(R.id.edit_ftp_server_destination);
         destination = mFTP.getDestination();
         mDestination.setText(destination);
-
+        setEditTextKeyImeChangeListener(mDestination);
 		
         mConnectionName.addTextChangedListener(new TextWatcher() {
             @Override
@@ -313,6 +321,7 @@ public class FTPEditFragment extends Fragment {
         if(!valid && validBefore) {
             validBefore=false;
             Toast.makeText(getActivity(), "enter a valid connection name", Toast.LENGTH_SHORT).show();
+            //mConnectionName.requestFocus();
         }
 
         //check server ip validity
@@ -330,6 +339,7 @@ public class FTPEditFragment extends Fragment {
         if(!valid && validBefore) {
             validBefore=false;
             Toast.makeText(getActivity(), "enter a valid ip or hostname", Toast.LENGTH_SHORT).show();
+            //mServerIP.requestFocus();
         }
 
         //check server port validity
@@ -347,6 +357,7 @@ public class FTPEditFragment extends Fragment {
         if(!valid && validBefore) {
             validBefore=false;
             Toast.makeText(getActivity(), "enter a valid port", Toast.LENGTH_SHORT).show();
+            //mServerPort.requestFocus();
         }
 
         //check server username validity
@@ -368,6 +379,7 @@ public class FTPEditFragment extends Fragment {
         if(!valid && validBefore) {
             validBefore=false;
             Toast.makeText(getActivity(), "enter a valid server username", Toast.LENGTH_SHORT).show();
+            //mServerUsername.requestFocus();
         }
 
         //check password validity
@@ -382,6 +394,7 @@ public class FTPEditFragment extends Fragment {
         if(!valid && validBefore) {
             validBefore=false;
             Toast.makeText(getActivity(), "enter a valid password", Toast.LENGTH_SHORT).show();
+            //mServerPassword.requestFocus();
         }
 
         //check destination validity
@@ -405,9 +418,10 @@ public class FTPEditFragment extends Fragment {
         if(!valid && validBefore) {
             validBefore=false;
             Toast.makeText(getActivity(), "enter a valid destination", Toast.LENGTH_SHORT).show();
+            //mDestination.requestFocus();
         }
 
-
+        //int errorIndex = mSourcesEditTexts.size();
         for(int i = 0; i!= mSourcesEditTexts.size(); i++)
         {
             String source = sources.get(i);
@@ -417,6 +431,7 @@ public class FTPEditFragment extends Fragment {
                 if(mSourcesEditTexts.get(i)!=null) {
                     mSourcesEditTexts.get(i).setError("only unix paths are valid");
                     valid = false;
+                    //errorIndex = i;
                 }
             }
             else if (source.length() > 200)
@@ -425,6 +440,7 @@ public class FTPEditFragment extends Fragment {
                 {
                     mSourcesEditTexts.get(i).setError("path can only be 200 chars");
                     valid = false;
+                    //errorIndex = i;
                 }
             }
             else
@@ -436,6 +452,8 @@ public class FTPEditFragment extends Fragment {
         if(!valid && validBefore) {
             validBefore=false;
             Toast.makeText(getActivity(), "enter valid source paths", Toast.LENGTH_SHORT).show();
+            //if(errorIndex >= 0 && errorIndex < mSourcesEditTexts.size())
+                //mSourcesEditTexts.get(errorIndex).requestFocus();
         }
 
 
@@ -482,6 +500,30 @@ public class FTPEditFragment extends Fragment {
 
         }
     }
+
+    private void setEditTextKeyImeChangeListener(final ExtendedEditText extendedEditText)
+    {
+        extendedEditText.setKeyImeChangeListener(new ExtendedEditText.KeyImeChange(){
+            @Override
+            public boolean onKeyIme(int keyCode, KeyEvent event)
+            {
+                if (event.getAction()==KeyEvent.ACTION_UP && event.getKeyCode() == KeyEvent.KEYCODE_BACK )
+                {
+                    extendedEditText.clearFocus();
+                    save();
+                    View view = getActivity().getCurrentFocus();
+                    if (view != null) {
+                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                    //Toast.makeText(getActivity(), "back", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                else
+                    return false;
+            }});
+    }
+
     private void addSourceField(String text)
     {
 		LinearLayout sourceLinearLayout = new LinearLayout(getContext());
@@ -491,11 +533,12 @@ public class FTPEditFragment extends Fragment {
 
         int i = mSourcesLinearLayouts.size()-1;
 
-        EditText sourceEditText = new EditText(getContext());
+        ExtendedEditText sourceEditText = new ExtendedEditText(getContext());
         mSourcesEditTexts.add(sourceEditText);
         mSourcesEditTexts.get(i).setText(text);
         mSourcesEditTexts.get(i).setId(i);
         mSourcesEditTexts.get(i).addTextChangedListener(new SourceTextWatcher(mSourcesEditTexts.get(i)));
+        setEditTextKeyImeChangeListener(mSourcesEditTexts.get(i));
 		
 		ImageView sourceDeleteButton = new ImageView(getContext());
         mSourcesDeleteButtons.add(sourceDeleteButton);
@@ -524,9 +567,9 @@ public class FTPEditFragment extends Fragment {
    
 
     public class SourceTextWatcher implements TextWatcher {
-        private EditText mEditText;
+        private ExtendedEditText mEditText;
 
-        public SourceTextWatcher(EditText e) {
+        public SourceTextWatcher(ExtendedEditText e) {
             mEditText = e;
         }
 

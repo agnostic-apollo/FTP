@@ -40,7 +40,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp">
-                    <android.support.design.widget.TextInputEditText
+                    <com.allonsy.android.ftp.ExtendedEditText
                         android:id="@+id/edit_ftp_connection_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
                         android:layout_marginTop="4dp"
                         android:layout_marginRight="8dp"
                         android:layout_marginEnd="8dp">
-                        <android.support.design.widget.TextInputEditText
+                        <com.allonsy.android.ftp.ExtendedEditText
                             android:id="@+id/edit_ftp_server_ip"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
                         android:layout_width="100dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp">
-                        <android.support.design.widget.TextInputEditText
+                        <com.allonsy.android.ftp.ExtendedEditText
                             android:id="@+id/edit_ftp_server_port"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -85,7 +85,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp">
-                    <android.support.design.widget.TextInputEditText
+                    <com.allonsy.android.ftp.ExtendedEditText
                         android:id="@+id/edit_ftp_server_username"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -97,7 +97,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp">
-                    <android.support.design.widget.TextInputEditText
+                    <com.allonsy.android.ftp.ExtendedEditText
                         android:id="@+id/edit_ftp_server_password"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp">
-                    <android.support.design.widget.TextInputEditText
+                    <com.allonsy.android.ftp.ExtendedEditText
                         android:id="@+id/edit_ftp_server_destination"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
