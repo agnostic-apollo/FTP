@@ -21,5 +21,5 @@ Source and destination paths should be in [UNIX path format](https://en.wikipedi
 [Download APK](https://github.com/agnostic-apollo/FTP/releases)  
 
 Credits  
- [Apache Commons Net 3.6 FTPClient API](https://commons.apache.org/proper/commons-net/apidocs/org/apache/commons/net/ftp/FTPClient.html).  
+ [Apache Commons Net 3.6 FTPClient API](https://commons.apache.org/proper/commons-net/apidocs/org/apache/commons/net/ftp/FTPClient.html)   
 <img src="https://github.com/agnostic-apollo/FTP/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" width="20"> [Icon Source](http://www.egermeier.com/wp-content/uploads/2014/06/git-ftp-icon-150x150.png)   
