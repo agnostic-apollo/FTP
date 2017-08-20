@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -57,8 +58,11 @@ public class FTPEditFragment extends Fragment {
     private static final String ARG_FTP_PASSWORD = "ftp_password";
     private static final String ARG_FTP = "ftp";
     private static final String DIALOG_FTP_SOURCE = "DialogFtpSource";
-    private static final String RETURN_STATE = "ftpState";
-    private static final String FTP_ID = "ftpId";
+    public static final String FTP_OBJECT = "ftpObject";
+    public static final String FTP_PASSWORD = "ftpPassword";
+    public static final int ADD_FTP = 0;
+    public static final int UPDATE_FTP = 1;
+    public static final String RETURN_STATE = "ftpState";
     private static final int REQUEST_PHOTO= 0;
 
     @Override
@@ -66,8 +70,7 @@ public class FTPEditFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        UUID ftpId = (UUID) getArguments().getSerializable(ARG_FTP_ID);
-        mFTP = FTPLab.get(getActivity()).getFTP(ftpId);
+        mFTP = (FTP) getArguments().getSerializable(ARG_FTP_ID);
         serverPassword = FTPLab.get(getActivity()).retrieveServerPassword(mFTP);
 
         if (savedInstanceState != null) {
@@ -82,6 +85,27 @@ public class FTPEditFragment extends Fragment {
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(getView() == null){
+            return;
+        }
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK){
+                    save();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -257,155 +281,196 @@ public class FTPEditFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_save:
-                boolean valid=true;
-
-                //check connection name validity
-                if (connectionName.isEmpty() || !connectionName.matches("^[\\p{L} .'-]+$"))
-                {
-                    mConnectionName.setError("enter a valid connection name");
-                    valid = false;
-                }
-                else if (connectionName.length() > 25)
-                {
-                    mConnectionName.setError("connection name can only be 25 chars");
-                    valid = false;
-                }
-                else
-                    mConnectionName.setError(null);
-
-				//check server ip validity
-				String validIpAddressRegex = "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
-				String validHostnameRegex = "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$";
-				
-                if (serverIP.isEmpty() || (!serverIP.matches(validIpAddressRegex) && !serverIP.matches(validHostnameRegex)))
-                {
-                    mServerIP.setError("enter a valid ip or hostname");
-                    valid = false;
-                }
-                else
-                    mServerIP.setError(null);
-				
-				
-				//check server port validity
-				String validPortRegex = "^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$";
-				
-				
-                if (serverPort.isEmpty() || !serverPort.matches(validPortRegex))
-                {
-                    mServerPort.setError("enter a valid port");
-                    valid = false;
-                }
-                else
-                    mServerPort.setError(null);
-				
-
-				//check server username validity
-				//string can contain only ASCII letters and digits, with hyphens, underscores and spaces as internal separators.
-				// the first and last character are not separators, and that there's never more than one separator in a row
-				if (serverUsername.isEmpty() || !serverUsername.matches("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$"))
-                {
-                    mServerUsername.setError("enter a valid server username");
-                    valid = false;
-                }
-				else if (serverUsername.length() > 25)
-                {
-                    mServerUsername.setError("server username can only be 25 chars");
-                    valid = false;
-                }
-                else
-                    mServerUsername.setError(null);
-				
-				//check password validity
-				if (!serverPassword.isEmpty() && (serverPassword.length() > 50 || !serverPassword.matches("^\\p{ASCII}+$")))
-                {
-                    mServerPassword.setError("password can only be 50 ASCII chars");
-                    valid = false;
-                }
-                else
-                    mServerPassword.setError(null);
-				
-				//check destination validity
-				//String validUnixPathRegex = "\([^\0 !$`&*()+]\|\\\(\ |\!|\$|\`|\&|\*|\(|\)|\+\)\)\+";
-				String validUnixPathRegex = "^\\/$|(^(?=\\/)|^\\.|^\\.\\.)(\\/(?=[^/\0])[^/\0]+)*\\/?$";
-				//String validWindowsPathRegex ="([a-zA-Z]:)?(\\\\[a-zA-Z0-9_.-]+)+\\\\?";
-
-               if (!destination.isEmpty() && !destination.matches(validUnixPathRegex))
-                {
-                    mDestination.setError("enter a valid unix destination path");
-                    valid = false;
-                }
-				else if (destination.length() > 200)
-                {
-                    mDestination.setError("destination path can only be 200 chars");
-                    valid = false;
-                }
-                else
-                    mDestination.setError(null);
-				
-				
-				
-                for(int i = 0; i!= mSourcesEditTexts.size(); i++)
-                {
-                    String source = sources.get(i);
-                    //check source validity
-                    if (!source.isEmpty() && !source.matches(validUnixPathRegex))
-                    {
-                        if(mSourcesEditTexts.get(i)!=null) {
-                            mSourcesEditTexts.get(i).setError("enter a valid unix source path");
-                            valid = false;
-                        }
-                    }
-                    else if (source.length() > 200)
-                    {
-                        if(mSourcesEditTexts.get(i)!=null)
-                        {
-                            mSourcesEditTexts.get(i).setError("source can only be 200 chars");
-                            valid = false;
-                        }
-                    }
-                    else
-                        if(mSourcesEditTexts.get(i)!=null)
-                             mSourcesEditTexts.get(i).setError(null);
-
-                }
-
-              
-
-                if(valid) {
-					
-					mFTP.setConnectionName(connectionName);
-					mFTP.setServerIP(serverIP);
-					mFTP.setServerPort(serverPort);
-					mFTP.setServerUsername(serverUsername);
-					mFTP.setDestination(destination);
-					mFTP.setSources(sources);
-
-                    FTPLab.get(getActivity()).updateFTP(mFTP,serverPassword);
-                    Toast.makeText(getActivity(), "saved",
-                            Toast.LENGTH_LONG).show();
-
-                    //Intent resultIntent1 = new Intent();
-                    //resultIntent1.putExtra(RETURN_STATE, "1");
-                    //resultIntent1.putExtra(FTP_ID, mFTP.getId().toString());
-					Intent resultIntent1 = FTPListFragment.newResultIntent(getActivity(),true, mFTP.getId());
-                    getActivity().setResult(Activity.RESULT_OK, resultIntent1);
-
-                    getActivity().finish();
-                }
+                save();
                 return true;
             case R.id.menu_item_cancel:
-                //Intent resultIntent2 = new Intent();
-                //resultIntent2.putExtra(RETURN_STATE, "0");
-                //resultIntent2.putExtra(FTP_ID, mFTP.getId().toString());
-				Intent resultIntent2 = FTPListFragment.newResultIntent(getActivity(),false, mFTP.getId());
-                getActivity().setResult(Activity.RESULT_OK, resultIntent2);
-                getActivity().finish();
+                cancel();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    private void save() {
+        boolean valid=true;
+        boolean validBefore=true;
+
+        //check connection name validity
+        //p{L} matches any kind of letter from any language.
+        if (connectionName.isEmpty() || (!connectionName.isEmpty() && !connectionName.matches("^[\\p{L} .'-{0-9}]+$")))
+        {
+            mConnectionName.setError("valid characters include (a-z)(0-9)-_'.()");
+            valid = false;
+        }
+        else if (connectionName.length() > 25)
+        {
+            mConnectionName.setError("connection name can only be 25 chars");
+            valid = false;
+        }
+        else
+            mConnectionName.setError(null);
+
+        if(!valid && validBefore) {
+            validBefore=false;
+            Toast.makeText(getActivity(), "enter a valid connection name", Toast.LENGTH_SHORT).show();
+        }
+
+        //check server ip validity
+        String validIpAddressRegex = "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
+        String validHostnameRegex = "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$";
+
+        if (serverIP.isEmpty() || (!serverIP.isEmpty() && (!serverIP.matches(validIpAddressRegex) && !serverIP.matches(validHostnameRegex))))
+        {
+            mServerIP.setError("only standard formats of ip or hostname are valid");
+            valid = false;
+        }
+        else
+            mServerIP.setError(null);
+
+        if(!valid && validBefore) {
+            validBefore=false;
+            Toast.makeText(getActivity(), "enter a valid ip or hostname", Toast.LENGTH_SHORT).show();
+        }
+
+        //check server port validity
+        String validPortRegex = "^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$";
+
+
+        if (serverPort.isEmpty() || (!serverPort.isEmpty() && !serverPort.matches(validPortRegex)))
+        {
+            mServerPort.setError("valid port range is 0-65535");
+            valid = false;
+        }
+        else
+            mServerPort.setError(null);
+
+        if(!valid && validBefore) {
+            validBefore=false;
+            Toast.makeText(getActivity(), "enter a valid port", Toast.LENGTH_SHORT).show();
+        }
+
+        //check server username validity
+        //string can contain only ASCII letters and digits, with hyphens, underscores and spaces as internal separators.
+        // the first and last character are not separators, and that there's never more than one separator in a row
+        if (serverUsername.isEmpty() || (!serverUsername.isEmpty() && !serverUsername.matches("^[A-Za-z0-9]+(?:[ ._-][A-Za-z0-9]+)*$")))
+        {
+            mServerUsername.setError("valid characters include (a-z)(0-9) .-_");
+            valid = false;
+        }
+        else if (serverUsername.length() > 25)
+        {
+            mServerUsername.setError("server username can only be 25 chars");
+            valid = false;
+        }
+        else
+            mServerUsername.setError(null);
+
+        if(!valid && validBefore) {
+            validBefore=false;
+            Toast.makeText(getActivity(), "enter a valid server username", Toast.LENGTH_SHORT).show();
+        }
+
+        //check password validity
+        if (!serverPassword.isEmpty() && (serverPassword.length() > 50 || !serverPassword.matches("^\\p{ASCII}+$")))
+        {
+            mServerPassword.setError("password can only be 50 ASCII chars");
+            valid = false;
+        }
+        else
+            mServerPassword.setError(null);
+
+        if(!valid && validBefore) {
+            validBefore=false;
+            Toast.makeText(getActivity(), "enter a valid password", Toast.LENGTH_SHORT).show();
+        }
+
+        //check destination validity
+        //String validUnixPathRegex = "\([^\0 !$`&*()+]\|\\\(\ |\!|\$|\`|\&|\*|\(|\)|\+\)\)\+";
+        String validUnixPathRegex = "^\\/$|(^(?=\\/)|^\\.|^\\.\\.)(\\/(?=[^/\0])[^/\0]+)*\\/?$";
+        //String validWindowsPathRegex ="([a-zA-Z]:)?(\\\\[a-zA-Z0-9_.-]+)+\\\\?";
+
+        if (!destination.isEmpty() && !destination.matches(validUnixPathRegex))
+        {
+            mDestination.setError("only unix paths are valid");
+            valid = false;
+        }
+        else if (destination.length() > 200)
+        {
+            mDestination.setError("path can only be 200 chars");
+            valid = false;
+        }
+        else
+            mDestination.setError(null);
+
+        if(!valid && validBefore) {
+            validBefore=false;
+            Toast.makeText(getActivity(), "enter a valid destination", Toast.LENGTH_SHORT).show();
+        }
+
+
+        for(int i = 0; i!= mSourcesEditTexts.size(); i++)
+        {
+            String source = sources.get(i);
+            //check source validity
+            if (!source.isEmpty() && !source.matches(validUnixPathRegex))
+            {
+                if(mSourcesEditTexts.get(i)!=null) {
+                    mSourcesEditTexts.get(i).setError("only unix paths are valid");
+                    valid = false;
+                }
+            }
+            else if (source.length() > 200)
+            {
+                if(mSourcesEditTexts.get(i)!=null)
+                {
+                    mSourcesEditTexts.get(i).setError("path can only be 200 chars");
+                    valid = false;
+                }
+            }
+            else
+            if(mSourcesEditTexts.get(i)!=null)
+                mSourcesEditTexts.get(i).setError(null);
+
+        }
+
+        if(!valid && validBefore) {
+            validBefore=false;
+            Toast.makeText(getActivity(), "enter valid source paths", Toast.LENGTH_SHORT).show();
+        }
+
+
+        if(valid) {
+
+            mFTP.setConnectionName(connectionName);
+            mFTP.setServerIP(serverIP);
+            mFTP.setServerPort(serverPort);
+            mFTP.setServerUsername(serverUsername);
+            mFTP.setDestination(destination);
+
+            List<String> newSources = new ArrayList<>();
+            for (int i = 0; i != sources.size(); i++) {
+                if(!sources.get(i).isEmpty())
+                    newSources.add(sources.get(i));
+            }
+            mFTP.setSources(newSources);
+
+            Intent resultIntent1 = new Intent();
+            resultIntent1.putExtra(RETURN_STATE, "1");
+            resultIntent1.putExtra(FTP_OBJECT, mFTP);
+            resultIntent1.putExtra(FTP_PASSWORD, serverPassword);
+            getActivity().setResult(Activity.RESULT_OK, resultIntent1);
+            getActivity().finish();
+        }
+
+    }
+
+
+    private void cancel() {
+        Intent resultIntent2 = new Intent();
+        resultIntent2.putExtra(RETURN_STATE, "0");
+        getActivity().setResult(Activity.RESULT_OK, resultIntent2);
+        getActivity().finish();
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -501,9 +566,9 @@ public class FTPEditFragment extends Fragment {
 
 
 
-    public static FTPEditFragment newInstance(UUID ftpId) {
+    public static FTPEditFragment newInstance(FTP ftp) {
         Bundle args = new Bundle();
-        args.putSerializable(ARG_FTP_ID, ftpId);
+        args.putSerializable(ARG_FTP_ID, ftp);
         FTPEditFragment fragment = new FTPEditFragment();
         fragment.setArguments(args);
         return fragment;

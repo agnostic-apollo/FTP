@@ -9,13 +9,13 @@ import java.util.UUID;
 
 public class FTPEditActivity extends SingleFragmentActivity {
 
-    private static final String EXTRA_FTP_ID =
-            "com.allonsy.android.ftp.id";
+    private static final String EXTRA_FTP =
+            "com.allonsy.android.ftp";
 	private static final String RETURN_STATE = "ftpState";
 
-    public static Intent newIntent(Context packageContext, UUID ftpId) {
+    public static Intent newIntent(Context packageContext, FTP ftp) {
         Intent intent = new Intent(packageContext, FTPEditActivity.class);
-        intent.putExtra(EXTRA_FTP_ID, ftpId);
+        intent.putExtra(EXTRA_FTP, ftp);
         return intent;
     }
 
@@ -24,9 +24,9 @@ public class FTPEditActivity extends SingleFragmentActivity {
 	
     @Override
     protected Fragment createFragment() {
-        UUID ftpId = (UUID) getIntent()
-                .getSerializableExtra(EXTRA_FTP_ID);
-        return FTPEditFragment.newInstance(ftpId);
+        FTP ftp = (FTP) getIntent()
+                .getSerializableExtra(EXTRA_FTP);
+        return FTPEditFragment.newInstance(ftp);
     }
 
 }

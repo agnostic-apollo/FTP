@@ -68,7 +68,6 @@ public class FTPListFragment extends Fragment {
         mFTPTextView = (TextView) view
                 .findViewById(R.id.empty_view);
 
-        updateUI();
         return view;
     }
 
@@ -135,8 +134,7 @@ public class FTPListFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.menu_item_new_ftp:
                 FTP ftp = new FTP();
-                FTPLab.get(getActivity()).addFTP(ftp,"");
-                Intent intent = FTPEditActivity.newIntent(getActivity(), ftp.getId());
+                Intent intent = FTPEditActivity.newIntent(getActivity(), ftp);
                 startActivityForResult(intent, ADD_FTP);
                 return true;
             /*
@@ -260,28 +258,32 @@ public class FTPListFragment extends Fragment {
 
     }
 
-	public static Intent newResultIntent(Context packageContext, boolean returnState, UUID ftpId) {
-        Intent intent = new Intent(packageContext, FTPListFragment.class);
-        intent.putExtra(EXTRA_RETURN_STATE, returnState);
-        intent.putExtra(EXTRA_FTP_ID, ftpId);
-        return intent;
-    }
-	
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
-        if (requestCode == ADD_FTP) {
 
-            boolean returnState = (boolean) data.getSerializableExtra(EXTRA_RETURN_STATE);
-            if(!returnState) {
-               Toast.makeText(getActivity(), "deleted",
-                        Toast.LENGTH_LONG).show();
-				UUID ftpId = (UUID) data.getSerializableExtra(EXTRA_FTP_ID);		
-                FTPLab.get(getActivity()).deleteFTP
-                        (FTPLab.get(getActivity()).getFTP(ftpId));
+        if (requestCode == FTPEditFragment.ADD_FTP) {
+
+            String returnValue = data.getStringExtra(FTPEditFragment.RETURN_STATE);
+            if(returnValue!=null) {
+                if (returnValue.equals("0")){
+                    Toast.makeText(getActivity(), "deleted",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else if (returnValue.equals("1")) {
+
+                    FTP ftp = (FTP) data.getSerializableExtra(FTPEditFragment.FTP_OBJECT);
+                    String password = data.getStringExtra(FTPEditFragment.FTP_PASSWORD);
+                    if(ftp!=null && password!=null) {
+                        Toast.makeText(getActivity(), "saved",
+                                Toast.LENGTH_SHORT).show();
+                        FTPLab.get(getActivity()).addFTP(ftp,password);
+                    }
+                }
             }
+
         }
 
         updateUI();

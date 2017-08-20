@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,6 +52,7 @@ public class FTPViewFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        updateUI();
     }
 
 
@@ -59,28 +61,10 @@ public class FTPViewFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_ftp_view, container, false);
 
         mConnectionName = (TextView) v.findViewById(R.id.view_ftp_connection_name);
-        mConnectionName.setText("Connection Name : " + mFTP.getConnectionName());
-		
 		mServerIpPort = (TextView) v.findViewById(R.id.view_ftp_server_ip_port);
-        mServerIpPort.setText("Ip/port : " + mFTP.getServerIP() + ":" + mFTP.getServerPort());
-		
 		mServerUsername = (TextView) v.findViewById(R.id.view_ftp_server_username);
-        mServerUsername.setText("Username : " + mFTP.getServerUsername());
-		
 		mDestination = (TextView) v.findViewById(R.id.view_ftp_server_destination);
-        mDestination.setText("Destination : " + mFTP.getDestination());
-
-		
-    
-        sources = mFTP.getSources();
-		String sourcesString="";
-        for(int i=0;i!=sources.size();i++)
-        {
-            sourcesString+=sources.get(i) + "\n";
-        }
 		mSources = (TextView) v.findViewById(R.id.view_ftp_source_list);
-		mSources.setText(sourcesString);
-     
 
         return v;
     }
@@ -103,9 +87,8 @@ public class FTPViewFragment extends Fragment {
                     Toast.makeText(getActivity(), "An FTP transfer already running", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.menu_item_ftp_edit:
-                Intent intent2 = FTPEditActivity.newIntent(getActivity(), mFTP.getId());
-                startActivity(intent2);
-                getActivity().finish();
+                Intent intent2 = FTPEditActivity.newIntent(getActivity(), mFTP);
+                startActivityForResult(intent2,FTPEditFragment.UPDATE_FTP);
                 return true;
             case R.id.menu_item_ftp_delete:
                 FTPLab.get(getActivity()).deleteFTP(mFTP);
@@ -117,13 +100,59 @@ public class FTPViewFragment extends Fragment {
         }
     }
 
+    private void updateUI()
+    {
+        if(mFTP!=null)
+        {
+
+            mConnectionName.setText("Connection Name : " + mFTP.getConnectionName());
+            mServerIpPort.setText("Ip/port : " + mFTP.getServerIP() + ":" + mFTP.getServerPort());
+            mServerUsername.setText("Username : " + mFTP.getServerUsername());
+            mDestination.setText("Destination : " + mFTP.getDestination());
+
+
+            sources = mFTP.getSources();
+            String sourcesString="";
+            for(int i=0;i!=sources.size();i++)
+            {
+                sourcesString+=sources.get(i) + "\n";
+            }
+            mSources.setText(sourcesString);
+        }
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
+
+        if (requestCode == FTPEditFragment.UPDATE_FTP) {
+
+            String returnValue = data.getStringExtra(FTPEditFragment.RETURN_STATE);
+            if(returnValue!=null) {
+                if (returnValue.equals("0")){
+                    Toast.makeText(getActivity(), "cancelled",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else if (returnValue.equals("1")) {
+
+                    FTP ftp = (FTP) data.getSerializableExtra(FTPEditFragment.FTP_OBJECT);
+                    String password = data.getStringExtra(FTPEditFragment.FTP_PASSWORD);
+                    if(ftp!=null && password!=null) {
+                        Toast.makeText(getActivity(), "saved",
+                                Toast.LENGTH_SHORT).show();
+                        mFTP=ftp;
+                        mPassword=password;
+                        FTPLab.get(getActivity()).updateFTP(ftp,password);
+                    }
+                }
+            }
+
+        }
     }
+
 
     public static FTPViewFragment newInstance(UUID ftpId) {
         Bundle args = new Bundle();

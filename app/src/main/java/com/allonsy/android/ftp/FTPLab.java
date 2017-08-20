@@ -169,7 +169,8 @@ public class FTPLab {
         try {
         KeyHelper encryptionManager = new KeyHelper(mContext);
         String encryptedPassword = QueryPreferences.getPassword(mContext, f.getId().toString());
-        decryptedPassword = encryptionManager.decrypt(mContext, encryptedPassword);
+        if(!encryptedPassword.isEmpty())
+            decryptedPassword = encryptionManager.decrypt(mContext, encryptedPassword);
 
         } catch (NoSuchAlgorithmException e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -197,9 +198,10 @@ public class FTPLab {
 
     public void storeServerPassword(FTP f, String password) {
         try {
-
+            String encryptedPassword = "";
             KeyHelper encryptionManager = new KeyHelper(mContext);
-            String encryptedPassword = encryptionManager.encrypt(mContext, password);
+            if(!password.isEmpty())
+                encryptedPassword = encryptionManager.encrypt(mContext, password);
             QueryPreferences.setPassword(mContext, f.getId().toString(), encryptedPassword);
 
             } catch (NoSuchAlgorithmException e) {
